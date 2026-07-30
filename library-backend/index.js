@@ -20,6 +20,7 @@ let authors = [
   {
     name: "Joshua Kerievsky",
     id: "afa5b6f2-344d-11e9-a414-719c6709cf3e",
+    born: 1961,
   },
   {
     name: "Sandi Metz",
@@ -96,7 +97,7 @@ const typeDefs = `
   type Query {
     bookCount: Int!
     authorCount: Int!
-    allBooks(author: String): [Book!]!
+    allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
   }
 `
@@ -108,11 +109,21 @@ const resolvers = {
     authorCount: () => authors.length,
 
     allBooks: (root, args) => {
-      if (!args.author) {
-        return books
+      let filteredBooks = books
+
+      if (args.author) {
+        filteredBooks = filteredBooks.filter(
+          book => book.author === args.author
+        )
       }
 
-      return books.filter(book => book.author === args.author)
+      if (args.genre) {
+        filteredBooks = filteredBooks.filter(
+          book => book.genres.includes(args.genre)
+        )
+      }
+
+      return filteredBooks
     },
 
     allAuthors: () => {
