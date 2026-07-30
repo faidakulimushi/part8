@@ -100,6 +100,15 @@ const typeDefs = `
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
   }
+
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String!]!
+    ): Book
+  }
 `
 
 const resolvers = {
@@ -131,6 +140,34 @@ const resolvers = {
         ...author,
         bookCount: books.filter(book => book.author === author.name).length,
       }))
+    },
+  },
+
+  Mutation: {
+    addBook: (root, args) => {
+      let author = authors.find(a => a.name === args.author)
+
+      if (!author) {
+        author = {
+          name: args.author,
+          born: null,
+          id: String(authors.length + 1),
+        }
+
+        authors.push(author)
+      }
+
+      const newBook = {
+        title: args.title,
+        published: args.published,
+        author: author.name,
+        genres: args.genres,
+        id: String(books.length + 1),
+      }
+
+      books.push(newBook)
+
+      return newBook
     },
   },
 }
