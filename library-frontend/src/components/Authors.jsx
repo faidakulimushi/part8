@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation } from '@apollo/client'
 import { ALL_AUTHORS, EDIT_AUTHOR } from '../queries'
 
@@ -11,6 +11,12 @@ const Authors = ({ show }) => {
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
   })
+
+  useEffect(() => {
+    if (data?.allAuthors.length > 0 && name === '') {
+      setName(data.allAuthors[0].name)
+    }
+  }, [data, name])
 
   if (!show) {
     return null
@@ -34,7 +40,6 @@ const Authors = ({ show }) => {
       },
     })
 
-    setName('')
     setBorn('')
   }
 
@@ -68,7 +73,6 @@ const Authors = ({ show }) => {
             value={name}
             onChange={({ target }) => setName(target.value)}
           >
-            <option value="">Select author</option>
             {data.allAuthors.map(author => (
               <option key={author.name} value={author.name}>
                 {author.name}
