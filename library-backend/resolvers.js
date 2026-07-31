@@ -7,8 +7,24 @@ const resolvers = {
 
     authorCount: async () => await Author.collection.countDocuments(),
 
-    allBooks: async () => {
-      return await Book.find({}).populate('author')
+    allBooks: async (root, args) => {
+      const filter = {}
+
+      if (args.genre) {
+        filter.genres = { $in: [args.genre] }
+      }
+
+      if (args.author) {
+        const author = await Author.findOne({ name: args.author })
+
+        if (!author) {
+          return []
+        }
+
+        filter.author = author._id
+      }
+
+      return await Book.find(filter).populate('author')
     },
 
     allAuthors: async () => {
@@ -51,6 +67,12 @@ const resolvers = {
       await author.save()
 
       return author
+    },
+  },
+
+  Author: {
+    bookCount: async (root) => {
+      return await Book.countDocuments({ author: root._id })
     },
   },
 }
