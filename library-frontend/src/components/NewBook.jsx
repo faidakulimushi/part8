@@ -10,10 +10,43 @@ const NewBook = ({ show }) => {
   const [genres, setGenres] = useState([])
 
   const [addBook] = useMutation(ADD_BOOK, {
-    refetchQueries: [
-      { query: ALL_BOOKS },
-      { query: ALL_AUTHORS },
-    ],
+    update: (cache, response) => {
+      const addedBook = response.data.addBook
+
+      cache.updateQuery(
+        {
+          query: ALL_BOOKS,
+        },
+        (data) => {
+          if (!data) {
+            return {
+              allBooks: [addedBook],
+            }
+          }
+
+          return {
+            allBooks: data.allBooks.concat(addedBook),
+          }
+        }
+      )
+
+      cache.updateQuery(
+        {
+          query: ALL_AUTHORS,
+        },
+        (data) => {
+          if (!data) {
+            return {
+              allAuthors: [],
+            }
+          }
+
+          return {
+            allAuthors: data.allAuthors,
+          }
+        }
+      )
+    },
   })
 
   if (!show) {
@@ -96,7 +129,9 @@ const NewBook = ({ show }) => {
           </button>
         </div>
 
-        <div>genres: {genres.join(' ')}</div>
+        <div>
+          genres: {genres.join(' ')}
+        </div>
 
         <button type="submit">
           create book
