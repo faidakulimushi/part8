@@ -2,29 +2,22 @@ import { useState } from 'react'
 import { useQuery } from '@apollo/client'
 import { ALL_BOOKS, BOOKS_BY_GENRE } from '../queries'
 
-const Books = ({ show }) => {
+const Books = () => {
   const [selectedGenre, setSelectedGenre] = useState(null)
 
   const allBooksResult = useQuery(ALL_BOOKS)
 
   const booksResult = useQuery(BOOKS_BY_GENRE, {
     variables: { genre: selectedGenre },
+    skip: selectedGenre === null,
   })
 
-  if (!show) {
-    return null
-  }
-
-  if (allBooksResult.loading || booksResult.loading) {
+  if (allBooksResult.loading) {
     return <div>loading...</div>
   }
 
   if (allBooksResult.error) {
     return <div>Error: {allBooksResult.error.message}</div>
-  }
-
-  if (booksResult.error) {
-    return <div>Error: {booksResult.error.message}</div>
   }
 
   const genres = [
@@ -34,7 +27,7 @@ const Books = ({ show }) => {
   ]
 
   const books = selectedGenre
-    ? booksResult.data.allBooks
+    ? booksResult.data?.allBooks || []
     : allBooksResult.data.allBooks
 
   return (

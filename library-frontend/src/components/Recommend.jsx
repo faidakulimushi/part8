@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client'
 import { ME, BOOKS_BY_GENRE } from '../queries'
 
-const Recommend = ({ show }) => {
+const Recommend = () => {
   const meResult = useQuery(ME)
 
   const booksResult = useQuery(BOOKS_BY_GENRE, {
@@ -10,10 +10,6 @@ const Recommend = ({ show }) => {
       genre: meResult.data?.me.favoriteGenre,
     },
   })
-
-  if (!show) {
-    return null
-  }
 
   if (meResult.loading || booksResult.loading) {
     return <div>loading...</div>
@@ -27,27 +23,50 @@ const Recommend = ({ show }) => {
     return <div>{booksResult.error.message}</div>
   }
 
+  if (!meResult.data) {
+    return null
+  }
+
   return (
     <div>
       <h2>recommendations</h2>
 
       <p>
-        books in your favorite genre <strong>{meResult.data.me.favoriteGenre}</strong>
+        books in your favorite genre{' '}
+        <strong>
+          {meResult.data.me.favoriteGenre}
+        </strong>
       </p>
 
       <table>
         <tbody>
           <tr>
-            <th>title</th>
-            <th>author</th>
-            <th>published</th>
+            <th>
+              title
+            </th>
+
+            <th>
+              author
+            </th>
+
+            <th>
+              published
+            </th>
           </tr>
 
           {booksResult.data.allBooks.map(book => (
             <tr key={book.title}>
-              <td>{book.title}</td>
-              <td>{book.author.name}</td>
-              <td>{book.published}</td>
+              <td>
+                {book.title}
+              </td>
+
+              <td>
+                {book.author.name}
+              </td>
+
+              <td>
+                {book.published}
+              </td>
             </tr>
           ))}
         </tbody>

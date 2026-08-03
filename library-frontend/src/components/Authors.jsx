@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react'
 import { useQuery, useMutation } from '@apollo/client'
 import { ALL_AUTHORS, EDIT_AUTHOR } from '../queries'
 
-const Authors = ({ show, token }) => {
+const Authors = ({ token }) => {
   const { loading, error, data } = useQuery(ALL_AUTHORS)
 
   const [name, setName] = useState('')
   const [born, setBorn] = useState('')
 
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
-    refetchQueries: [{ query: ALL_AUTHORS }],
+    refetchQueries: [
+      { query: ALL_AUTHORS },
+    ],
   })
 
   useEffect(() => {
@@ -17,10 +19,6 @@ const Authors = ({ show, token }) => {
       setName(data.allAuthors[0].name)
     }
   }, [data, name])
-
-  if (!show) {
-    return null
-  }
 
   if (loading) {
     return <div>loading...</div>
@@ -70,29 +68,47 @@ const Authors = ({ show, token }) => {
           <h3>Set birthyear</h3>
 
           <form onSubmit={submit}>
+
             <div>
               <select
+                name="name"
                 value={name}
-                onChange={({ target }) => setName(target.value)}
+                onChange={({ target }) =>
+                  setName(target.value)
+                }
               >
                 {data.allAuthors.map(author => (
-                  <option key={author.name} value={author.name}>
+                  <option
+                    key={author.name}
+                    value={author.name}
+                  >
                     {author.name}
                   </option>
                 ))}
               </select>
             </div>
 
+
             <div>
-              born
+              <label htmlFor="born">
+                born
+              </label>
+
               <input
+                id="born"
                 type="number"
                 value={born}
-                onChange={({ target }) => setBorn(target.value)}
+                onChange={({ target }) =>
+                  setBorn(target.value)
+                }
               />
             </div>
 
-            <button type="submit">update author</button>
+
+            <button type="submit">
+              update author
+            </button>
+
           </form>
         </>
       )}

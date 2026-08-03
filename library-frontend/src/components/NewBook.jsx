@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation } from '@apollo/client'
 import { ADD_BOOK, ALL_BOOKS, ALL_AUTHORS } from '../queries'
 
-const NewBook = ({ show }) => {
+const NewBook = () => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [published, setPublished] = useState('')
@@ -10,48 +10,11 @@ const NewBook = ({ show }) => {
   const [genres, setGenres] = useState([])
 
   const [addBook] = useMutation(ADD_BOOK, {
-    update: (cache, response) => {
-      const addedBook = response.data.addBook
-
-      cache.updateQuery(
-        {
-          query: ALL_BOOKS,
-        },
-        (data) => {
-          if (!data) {
-            return {
-              allBooks: [addedBook],
-            }
-          }
-
-          return {
-            allBooks: data.allBooks.concat(addedBook),
-          }
-        }
-      )
-
-      cache.updateQuery(
-        {
-          query: ALL_AUTHORS,
-        },
-        (data) => {
-          if (!data) {
-            return {
-              allAuthors: [],
-            }
-          }
-
-          return {
-            allAuthors: data.allAuthors,
-          }
-        }
-      )
-    },
+    refetchQueries: [
+      { query: ALL_BOOKS },
+      { query: ALL_AUTHORS },
+    ],
   })
-
-  if (!show) {
-    return null
-  }
 
   const submit = async (event) => {
     event.preventDefault()
@@ -69,14 +32,13 @@ const NewBook = ({ show }) => {
     setAuthor('')
     setPublished('')
     setGenres([])
-    setGenre('')
   }
 
   const addGenre = () => {
-    if (genre.trim() === '') return
-
-    setGenres(genres.concat(genre))
-    setGenre('')
+    if (genre.trim() !== '') {
+      setGenres(genres.concat(genre))
+      setGenre('')
+    }
   }
 
   return (
@@ -84,58 +46,84 @@ const NewBook = ({ show }) => {
       <h2>add book</h2>
 
       <form onSubmit={submit}>
+
         <div>
-          <label>
+          <label htmlFor="title">
             title
-            <input
-              value={title}
-              onChange={({ target }) => setTitle(target.value)}
-            />
           </label>
+
+          <input
+            id="title"
+            value={title}
+            onChange={({ target }) =>
+              setTitle(target.value)
+            }
+          />
         </div>
 
+
         <div>
-          <label>
+          <label htmlFor="author">
             author
-            <input
-              value={author}
-              onChange={({ target }) => setAuthor(target.value)}
-            />
           </label>
+
+          <input
+            id="author"
+            value={author}
+            onChange={({ target }) =>
+              setAuthor(target.value)
+            }
+          />
         </div>
 
+
         <div>
-          <label>
+          <label htmlFor="published">
             published
-            <input
-              type="number"
-              value={published}
-              onChange={({ target }) => setPublished(target.value)}
-            />
           </label>
+
+          <input
+            id="published"
+            type="number"
+            value={published}
+            onChange={({ target }) =>
+              setPublished(target.value)
+            }
+          />
         </div>
 
+
         <div>
-          <label>
+          <label htmlFor="genre">
             genre
-            <input
-              value={genre}
-              onChange={({ target }) => setGenre(target.value)}
-            />
           </label>
 
-          <button type="button" onClick={addGenre}>
+          <input
+            id="genre"
+            value={genre}
+            onChange={({ target }) =>
+              setGenre(target.value)
+            }
+          />
+
+          <button
+            type="button"
+            onClick={addGenre}
+          >
             add genre
           </button>
         </div>
+
 
         <div>
           genres: {genres.join(' ')}
         </div>
 
+
         <button type="submit">
           create book
         </button>
+
       </form>
     </div>
   )
