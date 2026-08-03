@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useQuery, useMutation } from '@apollo/client'
 import { ALL_AUTHORS, EDIT_AUTHOR } from '../queries'
 
-const Authors = ({ show }) => {
+const Authors = ({ show, token }) => {
   const { loading, error, data } = useQuery(ALL_AUTHORS)
 
   const [name, setName] = useState('')
@@ -65,33 +65,37 @@ const Authors = ({ show }) => {
         </tbody>
       </table>
 
-      <h3>Set birthyear</h3>
+      {token && (
+        <>
+          <h3>Set birthyear</h3>
 
-      <form onSubmit={submit}>
-        <div>
-          <select
-            value={name}
-            onChange={({ target }) => setName(target.value)}
-          >
-            {data.allAuthors.map(author => (
-              <option key={author.name} value={author.name}>
-                {author.name}
-              </option>
-            ))}
-          </select>
-        </div>
+          <form onSubmit={submit}>
+            <div>
+              <select
+                value={name}
+                onChange={({ target }) => setName(target.value)}
+              >
+                {data.allAuthors.map(author => (
+                  <option key={author.name} value={author.name}>
+                    {author.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <div>
-          born
-          <input
-            type="number"
-            value={born}
-            onChange={({ target }) => setBorn(target.value)}
-          />
-        </div>
+            <div>
+              born
+              <input
+                type="number"
+                value={born}
+                onChange={({ target }) => setBorn(target.value)}
+              />
+            </div>
 
-        <button type="submit">update author</button>
-      </form>
+            <button type="submit">update author</button>
+          </form>
+        </>
+      )}
     </div>
   )
 }
